@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Hogeri.Models;
-using System.Security.Principal;
+using Pomelo.EntityFrameworkCore.MySql;
 
 namespace Hogeri.Data
 {
@@ -33,10 +33,10 @@ namespace Hogeri.Data
                 .WithMany(a => a.AccountOwnerAccounts)
                 .HasForeignKey(aoa => aoa.AccountId);
 
-            // Automatically generate account numbers for new Account entities using UUIDs
+            // Automatically generate account numbers for new Account entities using UUIDs (for MySQL)
             modelBuilder.Entity<Account>()
                 .Property(a => a.AccountId)
-                .HasDefaultValueSql("NEWID()");
+                .HasDefaultValueSql("UUID()");
         }
     }
 }

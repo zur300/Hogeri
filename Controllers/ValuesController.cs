@@ -34,7 +34,7 @@ public class ValuesController : ControllerBase
         try
         {
             var accountOwners = new List<AccountOwner>();
-            var createdAccountIds = new List<string>(); // To store newly created AccountIds
+            var createdAccountIds = new List<Guid>(); // Change to Guid type
 
             foreach (var ownerDto in dto.Owners)
             {
@@ -56,10 +56,12 @@ public class ValuesController : ControllerBase
                         CoinType = acc.CoinType,
                         AccountType = acc.AccountType,
                         CashInvested = acc.CashInvested,
-                        // AccountId generation will be handled by the DbContext using the default SQL value (NEWID())
                     };
 
-                    createdAccountIds.Add(account.AccountId); // Add the account ID to our list
+                    _context.Accounts.Add(account);
+                    await _context.SaveChangesAsync();  // Save immediately to generate the AccountId
+
+                    createdAccountIds.Add(account.AccountId);
 
                     var accountOwnerAccount = new AccountOwnerAccount
                     {
@@ -67,7 +69,6 @@ public class ValuesController : ControllerBase
                         Account = account
                     };
 
-                    _context.Accounts.Add(account);
                     _context.AccountOwnerAccounts.Add(accountOwnerAccount);
                 }
             }
@@ -82,6 +83,7 @@ public class ValuesController : ControllerBase
             return BadRequest($"Error: {ex.Message}");
         }
     }
+
 
 
     // You can add other necessary methods here as well
