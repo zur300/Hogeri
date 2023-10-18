@@ -34,48 +34,80 @@ public class ValuesController : ControllerBase
         try
         {
             var accountOwners = new List<AccountOwner>();
-            var createdAccountIds = new List<Guid>(); // Change to Guid type
 
             foreach (var ownerDto in dto.Owners)
             {
-                var accountOwner = new AccountOwner
-                {
-                    Name = ownerDto.Name,
-                    Gender = ownerDto.Gender,
-                    DateOfBirth = ownerDto.DateOfBirth
-                };
+                // Check if an owner with the given ID already exists
+                var existingAccountOwner = await _context.AccountOwners
+                                                         .Include(ao => ao.AccountOwnerAccounts)
+                                                         .ThenInclude(aoa => aoa.Account)
+                                                         .FirstOrDefaultAsync(ao => ao.Name == ownerDto.Name); // Assuming Name as unique identifier
 
-                _context.AccountOwners.Add(accountOwner);
-                accountOwners.Add(accountOwner);
-
-                foreach (var acc in dto.Accounts)
+                if (existingAccountOwner != null)
                 {
-                    var account = new Account
+                    // Update the properties of the existing owner
+                    existingAccountOwner.Name = ownerDto.Name;
+                    existingAccountOwner.Gender = ownerDto.Gender;
+                    existingAccountOwner.DateOfBirth = ownerDto.DateOfBirth;
+
+                    // Handle accounts associated with the existing owner
+                    foreach (var accountDto in ownerDto.Accounts)
                     {
-                        GeneralAccountName = acc.GeneralAccountName,
-                        CoinType = acc.CoinType,
-                        AccountType = acc.AccountType,
-                        CashInvested = acc.CashInvested,
+                        var account = new Account
+                        {
+                            AccountId = Guid.NewGuid(),
+                            GeneralAccountName = accountDto.GeneralAccountName,
+                            CoinType = accountDto.CoinType,
+                            AccountType = accountDto.AccountType,
+                            CashInvested = accountDto.CashInvested
+                        };
+
+                        var accountOwnerAccount = new AccountOwnerAccount
+                        {
+                            AccountOwner = existingAccountOwner,
+                            Account = account
+                        };
+
+                        _context.AccountOwnerAccounts.Add(accountOwnerAccount);
+                    }
+                }
+                else
+                {
+                    var accountOwner = new AccountOwner
+                    {
+                        Name = ownerDto.Name,
+                        Gender = ownerDto.Gender,
+                        DateOfBirth = ownerDto.DateOfBirth,
                     };
 
-                    _context.Accounts.Add(account);
-                    await _context.SaveChangesAsync();  // Save immediately to generate the AccountId
+                    _context.AccountOwners.Add(accountOwner);
+                    accountOwners.Add(accountOwner);
 
-                    createdAccountIds.Add(account.AccountId);
-
-                    var accountOwnerAccount = new AccountOwnerAccount
+                    // Handle accounts for the new owner
+                    foreach (var accountDto in ownerDto.Accounts)
                     {
-                        AccountOwner = accountOwner,
-                        Account = account
-                    };
+                        var account = new Account
+                        {
+                            AccountId = Guid.NewGuid(),
+                            GeneralAccountName = accountDto.GeneralAccountName,
+                            CoinType = accountDto.CoinType,
+                            AccountType = accountDto.AccountType,
+                            CashInvested = accountDto.CashInvested
+                        };
 
-                    _context.AccountOwnerAccounts.Add(accountOwnerAccount);
+                        var accountOwnerAccount = new AccountOwnerAccount
+                        {
+                            AccountOwner = accountOwner,
+                            Account = account
+                        };
+
+                        _context.AccountOwnerAccounts.Add(accountOwnerAccount);
+                    }
                 }
             }
 
             await _context.SaveChangesAsync();
-
-            return Ok(new { AccountOwners = accountOwners, CreatedAccountIds = createdAccountIds });
+            return Ok(new { AccountOwners = accountOwners });
         }
         catch (Exception ex)
         {
@@ -83,6 +115,7 @@ public class ValuesController : ControllerBase
             return BadRequest($"Error: {ex.Message}");
         }
     }
+
 
 
 

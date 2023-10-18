@@ -16,27 +16,33 @@ namespace Hogeri.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<AccountOwner>()
+                .HasIndex(ao => ao.Id)
+                .IsUnique();
+
             // Configuring the composite key for the AccountOwnerAccount junction table
             modelBuilder.Entity<AccountOwnerAccount>()
                 .HasKey(aoa => new { aoa.AccountOwnerId, aoa.AccountId });
+
+            // Ensure that AccountOwnerId in AccountOwnerAccount is a string
+            modelBuilder.Entity<AccountOwnerAccount>()
+                .Property(aoa => aoa.AccountOwnerId)
+                .HasColumnType("varchar(255)");
 
             // Setting up the many-to-many relationship between AccountOwner and Account
             // Configuring the foreign key and navigation properties for the AccountOwner side of the relationship
             modelBuilder.Entity<AccountOwnerAccount>()
                 .HasOne(aoa => aoa.AccountOwner)
                 .WithMany(ao => ao.AccountOwnerAccounts)
-                .HasForeignKey(aoa => aoa.AccountOwnerId);
+                .HasForeignKey(aoa => aoa.AccountOwnerId)
+                .IsRequired();
 
             // Configuring the foreign key and navigation properties for the Account side of the relationship
             modelBuilder.Entity<AccountOwnerAccount>()
                 .HasOne(aoa => aoa.Account)
                 .WithMany(a => a.AccountOwnerAccounts)
-                .HasForeignKey(aoa => aoa.AccountId);
-
-            // Automatically generate account numbers for new Account entities using UUIDs (for MySQL)
-            modelBuilder.Entity<Account>()
-                .Property(a => a.AccountId)
-                .HasDefaultValueSql("UUID()");
+                .HasForeignKey(aoa => aoa.AccountId)
+                .IsRequired();
         }
     }
 }
