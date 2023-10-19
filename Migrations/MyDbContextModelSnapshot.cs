@@ -50,7 +50,7 @@ namespace Hogeri.Migrations
 
             modelBuilder.Entity("Hogeri.Models.AccountOwner", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("OwnerId")
                         .HasColumnType("varchar(255)");
 
                     b.Property<DateTime>("DateOfBirth")
@@ -64,23 +64,20 @@ namespace Hogeri.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("Id")
-                        .IsUnique();
+                    b.HasKey("OwnerId");
 
                     b.ToTable("AccountOwners");
                 });
 
             modelBuilder.Entity("Hogeri.Models.AccountOwnerAccount", b =>
                 {
-                    b.Property<string>("AccountOwnerId")
+                    b.Property<string>("OwnerId")
                         .HasColumnType("varchar(255)");
 
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
 
-                    b.HasKey("AccountOwnerId", "AccountId");
+                    b.HasKey("OwnerId", "AccountId");
 
                     b.HasIndex("AccountId");
 
@@ -112,7 +109,7 @@ namespace Hogeri.Migrations
 
                     b.HasOne("Hogeri.Models.AccountOwner", "AccountOwner")
                         .WithMany("AccountOwnerAccounts")
-                        .HasForeignKey("AccountOwnerId")
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

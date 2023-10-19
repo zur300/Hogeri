@@ -39,9 +39,10 @@ public class ValuesController : ControllerBase
             {
                 // Check if an owner with the given ID already exists
                 var existingAccountOwner = await _context.AccountOwners
-                                                         .Include(ao => ao.AccountOwnerAccounts)
-                                                         .ThenInclude(aoa => aoa.Account)
-                                                         .FirstOrDefaultAsync(ao => ao.Name == ownerDto.Name); // Assuming Name as unique identifier
+                                         .Include(ao => ao.AccountOwnerAccounts)
+                                         .ThenInclude(aoa => aoa.Account)
+                                         .FirstOrDefaultAsync(ao => ao.OwnerId == ownerDto.OwnerId); // Use OwnerId as the unique identifier
+                                                                                                     // Assuming Name as unique identifier
 
                 if (existingAccountOwner != null)
                 {
@@ -75,9 +76,11 @@ public class ValuesController : ControllerBase
                 {
                     var accountOwner = new AccountOwner
                     {
+                        OwnerId = ownerDto.OwnerId,
                         Name = ownerDto.Name,
                         Gender = ownerDto.Gender,
                         DateOfBirth = ownerDto.DateOfBirth,
+                       
                     };
 
                     _context.AccountOwners.Add(accountOwner);

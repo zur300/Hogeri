@@ -7,10 +7,11 @@
 
     public class OwnerDto
     {
+        public string OwnerId { get; set; }
         public string Name { get; set; }
         public string Gender { get; set; }
         public DateTime DateOfBirth { get; set; }
-        public List<AccountDto> Accounts { get; set; }
+        public List<AccountDto> Accounts { get; set; }  // List of AccountDto instead of List<int>
     }
 
     public class AccountDto

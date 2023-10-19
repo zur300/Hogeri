@@ -17,16 +17,17 @@ namespace Hogeri.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AccountOwner>()
-                .HasIndex(ao => ao.Id)
-                .IsUnique();
+    .HasKey(ao => ao.OwnerId);
+
 
             // Configuring the composite key for the AccountOwnerAccount junction table
             modelBuilder.Entity<AccountOwnerAccount>()
-                .HasKey(aoa => new { aoa.AccountOwnerId, aoa.AccountId });
+    .HasKey(aoa => new { aoa.OwnerId, aoa.AccountId });
+
 
             // Ensure that AccountOwnerId in AccountOwnerAccount is a string
             modelBuilder.Entity<AccountOwnerAccount>()
-                .Property(aoa => aoa.AccountOwnerId)
+                .Property(aoa => aoa.OwnerId)
                 .HasColumnType("varchar(255)");
 
             // Setting up the many-to-many relationship between AccountOwner and Account
@@ -34,7 +35,7 @@ namespace Hogeri.Data
             modelBuilder.Entity<AccountOwnerAccount>()
                 .HasOne(aoa => aoa.AccountOwner)
                 .WithMany(ao => ao.AccountOwnerAccounts)
-                .HasForeignKey(aoa => aoa.AccountOwnerId)
+                .HasForeignKey(aoa => aoa.OwnerId)
                 .IsRequired();
 
             // Configuring the foreign key and navigation properties for the Account side of the relationship

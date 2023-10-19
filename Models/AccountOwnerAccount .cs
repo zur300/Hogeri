@@ -2,7 +2,7 @@
 {
     public class AccountOwnerAccount
     {
-        public string AccountOwnerId { get; set; }
+        public string OwnerId { get; set; }
         public AccountOwner AccountOwner { get; set; }
 
         public int AccountId { get; set; }

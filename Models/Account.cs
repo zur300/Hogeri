@@ -11,6 +11,7 @@
         public string AccountType { get; set; }
         public double CashInvested { get; set; }
 
+
         // Navigation property for the many-to-many relation
         public ICollection<AccountOwnerAccount> AccountOwnerAccounts { get; set; }
     }

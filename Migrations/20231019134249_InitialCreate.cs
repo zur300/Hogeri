@@ -19,7 +19,7 @@ namespace Hogeri.Migrations
                 name: "AccountOwners",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "varchar(255)", nullable: false)
+                    OwnerId = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -29,7 +29,7 @@ namespace Hogeri.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AccountOwners", x => x.Id);
+                    table.PrimaryKey("PK_AccountOwners", x => x.OwnerId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -73,18 +73,18 @@ namespace Hogeri.Migrations
                 name: "AccountOwnerAccounts",
                 columns: table => new
                 {
-                    AccountOwnerId = table.Column<string>(type: "varchar(255)", nullable: false)
+                    OwnerId = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     AccountId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AccountOwnerAccounts", x => new { x.AccountOwnerId, x.AccountId });
+                    table.PrimaryKey("PK_AccountOwnerAccounts", x => new { x.OwnerId, x.AccountId });
                     table.ForeignKey(
-                        name: "FK_AccountOwnerAccounts_AccountOwners_AccountOwnerId",
-                        column: x => x.AccountOwnerId,
+                        name: "FK_AccountOwnerAccounts_AccountOwners_OwnerId",
+                        column: x => x.OwnerId,
                         principalTable: "AccountOwners",
-                        principalColumn: "Id",
+                        principalColumn: "OwnerId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_AccountOwnerAccounts_Accounts_AccountId",
@@ -99,12 +99,6 @@ namespace Hogeri.Migrations
                 name: "IX_AccountOwnerAccounts_AccountId",
                 table: "AccountOwnerAccounts",
                 column: "AccountId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AccountOwners_Id",
-                table: "AccountOwners",
-                column: "Id",
-                unique: true);
         }
 
         /// <inheritdoc />
