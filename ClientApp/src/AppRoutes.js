@@ -2,6 +2,8 @@ import { Counter } from "./components/Counter";
 import { FetchData } from "./components/FetchData";
 import { Home } from "./components/Home";
 
+
+// Control all the server rounting - Pages direction
 const AppRoutes = [
   {
     index: true,

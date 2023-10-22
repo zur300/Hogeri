@@ -6,6 +6,7 @@ namespace Hogeri.Data
 {
     public class MyDbContext : DbContext
     {
+        // Dbcontext define the relationship between Tables
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
 
         // DBSet properties representing the tables in the database
@@ -16,13 +17,12 @@ namespace Hogeri.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<AccountOwner>()
-    .HasKey(ao => ao.OwnerId);
+
+            modelBuilder.Entity<AccountOwner>().HasKey(ao => ao.OwnerId);
 
 
             // Configuring the composite key for the AccountOwnerAccount junction table
-            modelBuilder.Entity<AccountOwnerAccount>()
-    .HasKey(aoa => new { aoa.OwnerId, aoa.AccountId });
+            modelBuilder.Entity<AccountOwnerAccount>().HasKey(aoa => new { aoa.OwnerId, aoa.AccountId });
 
 
             // Ensure that AccountOwnerId in AccountOwnerAccount is a string
