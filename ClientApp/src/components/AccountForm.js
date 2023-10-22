@@ -3,10 +3,11 @@ import './AccountForm.css';
 
 export class AccountForm extends Component {
     static displayName = AccountForm.name;
+   
 
     constructor(props) {
         super(props);
-        this.state = {
+        const defalutState = {
             Owners: [{
                 OwnerId: "",
                 Name: "",
@@ -17,6 +18,7 @@ export class AccountForm extends Component {
                 ]
             }]
         };
+        this.state = defalutState 
     }
 
     handleOwnerChange = (index, field, value) => {
@@ -27,7 +29,7 @@ export class AccountForm extends Component {
 
     handleAddOwner = () => {
         this.setState(prevState => ({
-            Owners: [...prevState.Owners, { OwnerId: "", Name: "", Gender: "Male", DateOfBirth: "" }]
+            Owners: [...prevState.Owners, { OwnerId: "", Name: "", Gender: "Male", DateOfBirth: "", Accounts: [] }]
         }));
     }
 
@@ -39,23 +41,40 @@ export class AccountForm extends Component {
         }
     }
 
-    handleAccountChange = (ownerIndex, accountIndex, field, value) => {
+    handleAccountChange = (accountIndex, field, value) => {
         const updatedOwners = [...this.state.Owners];
         if (field === 'CashInvested') {
             value = Number(value);
         }
-        updatedOwners[ownerIndex].Accounts[accountIndex][field] = value;
+        updatedOwners[0].Accounts[accountIndex][field] = value;
         this.setState({ Owners: updatedOwners });
     };
 
+
+    // Async function because ?  Front speaks with the server in async way ( two way )
     handleSubmit = async (e) => {
         e.preventDefault();
+        const updateAccounts = { ...this.state };
+
+        // Check if there is more then one account submited 
+        if (updateAccounts.Owners[1]) {
+            updateAccounts.Owners[1].Accounts = this.state.Owners[0].Accounts;
+        }
+
+        if (updateAccounts.Owners[2]) {
+            updateAccounts.Owners[2].Accounts = this.state.Owners[0].Accounts;
+        }
+        this.setState(updateAccounts);
+
+
         console.log(this.state);
+
 
         const formData = {
             Owners: this.state.Owners
  
         };
+
 
         const response = await fetch('https://localhost:7063/api/values', {
             method: 'POST',
@@ -67,12 +86,23 @@ export class AccountForm extends Component {
 
         if (response.ok) {
             alert('Data saved successfully!');
+            this.setState({
+                Owners: [{
+                    OwnerId: "",
+                    Name: "",
+                    Gender: "Male",
+                    DateOfBirth: "",
+                    Accounts: [ // Nest accounts within owners
+                        { GeneralAccountName: "", CoinType: "", AccountType: "", CashInvested: 0 }
+                    ]
+                }]
+            });
         } else {
             alert('Error saving data!');
         }
     }
 
-
+    // REnder the AccountFrom
     render() {
         const { Owners } = this.state;
 
@@ -81,7 +111,7 @@ export class AccountForm extends Component {
                 <h2>Account Owner Form</h2>
                 <form onSubmit={this.handleSubmit}>
 
-                    {Owners.map((owner, ownerIndex) => (
+                    {Owners?.map((owner, ownerIndex) => (
                         <div key={ownerIndex}>
                             <h3>Owner Details</h3>
 
@@ -107,39 +137,46 @@ export class AccountForm extends Component {
                                 Date of Birth:
                                 <input type="date" value={owner.DateOfBirth} onChange={e => this.handleOwnerChange(ownerIndex, 'DateOfBirth', e.target.value)} required />
                             </label><br />
-                            <button type="button" onClick={this.handleAddOwner}>Add Another Owner</button>
 
-                            {owner.Accounts.map((account, accountIndex) => (
+                        </div>
+
+                    ))}
+                    {Owners.length < 3 && (
+                    <button type="button" onClick={this.handleAddOwner}>Add Another Owner</button>
+                    )}
+
+                    {Owners[0].Accounts.map((account, accountIndex) => (
                                 <div key={accountIndex}>
                                     <h3>Account Details (Max 3)</h3>
 
                                     <label>
                                         General Account Name:
-                                        <input type="text" value={account.GeneralAccountName} onChange={e => this.handleAccountChange(ownerIndex, accountIndex, 'GeneralAccountName', e.target.value)} required />
+                                        <input type="text" value={account.GeneralAccountName} onChange={e => this.handleAccountChange( accountIndex, 'GeneralAccountName', e.target.value)} required />
                                     </label><br />
 
                                     <label>
                                         Coin Type:
-                                        <input type="text" value={account.CoinType} onChange={e => this.handleAccountChange(ownerIndex, accountIndex, 'CoinType', e.target.value)} required />
+                                        <input type="text" value={account.CoinType} onChange={e => this.handleAccountChange( accountIndex, 'CoinType', e.target.value)} required />
                                     </label><br />
 
                                     <label>
                                         Account Type:
-                                        <input type="text" value={account.AccountType} onChange={e => this.handleAccountChange(ownerIndex, accountIndex, 'AccountType', e.target.value)} required />
+                                        <input type="text" value={account.AccountType} onChange={e => this.handleAccountChange( accountIndex, 'AccountType', e.target.value)} required />
                                     </label><br />
 
                                     <label>
                                         Cash Invested:
-                                        <input type="number" value={account.CashInvested} onChange={e => this.handleAccountChange(ownerIndex, accountIndex, 'CashInvested', e.target.value)} required />
+                                        <input type="number" value={account.CashInvested} onChange={e => this.handleAccountChange( accountIndex, 'CashInvested', e.target.value)} required />
                                     </label><br />
+                           
                                 </div>
-                            ))}
-
-                            {owner.Accounts.length < 3 && (
-                                <button type="button" onClick={() => this.handleAddAccount(ownerIndex)}>Add Another Account</button>
-                            )}
-                        </div>
                     ))}
+                    {Owners[0].Accounts.length < 3 && (
+                        <button type="button" onClick={() => this.handleAddAccount(0)}>Add Another Account</button>
+                    )}
+
+                            
+                  
 
                     
 
